@@ -1,0 +1,99 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+
+    <!-- Register your payment method -->
+    <type name="Magento\Payment\Model\MethodList">
+        <arguments>
+            <argument name="methods" xsi:type="array">
+                <item name="paylabs_payment_seamless" xsi:type="string">Paylabs\Payment\Model\Payment\Code\PaymentSeamless</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <!-- Define AbstractPayment dependencies -->
+    <type name="Paylabs\Payment\Model\Payment\AbstractPayment">
+        <arguments>
+            <argument name="code" xsi:type="const">Paylabs\Payment\Model\Payment\Code\PaymentSeamless::CODE</argument>
+            <argument name="valueHandlerPool" xsi:type="object">PaylabsPaymentValueHandlerPool</argument>
+            <argument name="validatorPool" xsi:type="object">PaylabsPaymentValidatorPool</argument>
+            <argument name="formBlockType" xsi:type="string">Magento\Payment\Block\Form</argument>
+            <argument name="infoBlockType" xsi:type="string">Magento\Payment\Block\Info</argument>
+            <argument name="logger" xsi:type="object">Paylabs\Payment\Logger\PaylabsLogger</argument>
+        </arguments>
+    </type>
+
+    <!-- START - Value Handler Pool -->
+    <virtualType name="PaylabsPaymentConfig" type="Magento\Payment\Gateway\Config\Config">
+        <arguments>
+            <argument name="methodCode" xsi:type="const">Paylabs\Payment\Model\Payment\Code\PaymentSeamless::CODE</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="PaylabsPaymentConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">PaylabsPaymentConfig</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="PaylabsPaymentValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">PaylabsPaymentConfigValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- END - Value Handler Pool -->
+
+    <!-- START - Validator Pool -->
+    <virtualType name="CountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
+        <arguments>
+            <argument name="config" xsi:type="object">PaylabsPaymentConfig</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="PaylabsPaymentGlobalValidator" type="Magento\Payment\Gateway\Validator\ValidatorComposite">
+        <arguments>
+            <argument name="validators" xsi:type="array">
+                <item name="country" xsi:type="string">CountryValidator</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="PaylabsPaymentValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
+        <arguments>
+            <argument name="validators" xsi:type="array">
+                <item name="global" xsi:type="string">PaylabsPaymentGlobalValidator</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- END - Validator Pool -->
+
+    <!-- Define handlers -->
+    <type name="Paylabs\Payment\Logger\Handler\ApiRequestHandler" shared="true"/>
+    <type name="Paylabs\Payment\Logger\Handler\DebugHandler" shared="true"/>
+    <type name="Paylabs\Payment\Logger\Handler\CallbackRequestHandler" shared="true"/>
+    <type name="Paylabs\Payment\Logger\Handler\ErrorHandler" shared="true"/>
+
+    <!-- Configure PaylabsLogger -->
+    <type name="Paylabs\Payment\Logger\PaylabsLogger">
+        <arguments>
+            <argument name="name" xsi:type="string">paylabs_logger</argument>
+            <argument name="moduleConfig" xsi:type="object">Paylabs\Payment\Model\Config\Payment\ModuleConfig</argument>
+            <argument name="apiRequestLogHandler" xsi:type="object">Paylabs\Payment\Logger\Handler\ApiRequestHandler</argument>
+            <argument name="callbackLogHandler" xsi:type="object">Paylabs\Payment\Logger\Handler\CallbackRequestHandler</argument>
+            <argument name="debugLogHandler" xsi:type="object">Paylabs\Payment\Logger\Handler\DebugHandler</argument>
+            <argument name="errorHandler" xsi:type="object">Paylabs\Payment\Logger\Handler\ErrorHandler</argument>
+        </arguments>
+    </type>
+
+    <type name="Paylabs\Payment\Gateway\Http\Client">
+        <arguments>
+            <argument name="logger" xsi:type="object">Paylabs\Payment\Logger\PaylabsLogger</argument>
+        </arguments>
+    </type>
+    
+    <type name="Paylabs\Payment\Controller\Payment\Callback">
+        <arguments>
+            <argument name="resultJsonFactory" xsi:type="object">Magento\Framework\Controller\Result\JsonFactory</argument>
+            <argument name="logger" xsi:type="object">Psr\Log\LoggerInterface</argument>
+        </arguments>
+    </type>
+
+
+</config>

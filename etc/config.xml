@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Config/etc/config.xsd">
+    <default>
+        <payment>
+            <paylabs>
+                <settings>
+                    <production_mode>1</production_mode>
+                    <log>
+                        <callback>1</callback>
+                        <request>1</request>
+                        <debug>0</debug>
+                        <exception>0</exception>
+                    </log>
+                </settings>
+            </paylabs>
+            <paylabs_payment_seamless>
+                <active>1</active>
+                <title>Online Payment via Paylabs</title>
+                <model>Paylabs\Payment\Model\Payment\Code\PaymentSeamless</model>
+                <order_status>pending</order_status>
+                <is_gateway>1</is_gateway>
+                <can_use_checkout>1</can_use_checkout>
+                <can_authorize>1</can_authorize>
+                <can_capture>0</can_capture>
+                <can_refund>0</can_refund>
+            </paylabs_payment_seamless>
+        </payment>
+    </default>
+</config>

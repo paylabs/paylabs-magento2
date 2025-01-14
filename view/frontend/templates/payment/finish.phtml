@@ -1,0 +1,23 @@
+<?php /** @var $block Finish */
+
+use Vendor\Module\Block\Finish; ?>
+<?php $order = $block->getOrder(); ?>
+<?php $customerSession = $block->getCustomerSession(); ?>
+
+<?php if ($order): ?>
+    <h1><?= __('Thank You for Your Order!') ?></h1>
+    <p>
+        <?= __('Order ID: ') ?>
+        <?php if ($customerSession->isLoggedIn()): ?>
+            <a href="<?= $block->getOrderViewUrl($order->getId()); ?>">
+                <?= $order->getIncrementId(); ?>
+            </a>
+        <?php else: ?>
+            <?= $order->getIncrementId(); ?>
+        <?php endif; ?>
+    </p>
+    <p><?= __('Payment Status: ') ?><?= strtoupper($order->getStatus()); ?></p>
+    <p><?= __('Order Total: ') ?><?= $order->formatPrice($order->getGrandTotal()); ?></p>
+<?php else: ?>
+    <p><?= __('please retry in a moment...') ?></p>
+<?php endif; ?>

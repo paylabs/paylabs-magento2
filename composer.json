@@ -1,0 +1,33 @@
+{
+  "name": "paylabs/payment",
+  "description": "Paylabs Payment Gateway for Magento 2",
+  "type": "magento2-module",
+  "version": "1.0.0",
+  "authors" : [
+    {
+      "name": "Irfan Maulana",
+      "email": "irfan@paylabs.co.id",
+      "homepage": "https://paylabs.co.id/",
+      "role": "Developer"
+    }
+  ],
+  "license": ["MIT"],
+  "require": {
+    "php" : "^8.0"
+  },
+  "autoload": {
+    "files": ["registration.php"],
+    "psr-4": {
+      "Paylabs\\Payment\\": ""
+    }
+  },
+  "keywords": [
+    "magento2",
+    "magento 2",
+    "paylabs",
+    "paylabs payment gateway",
+    "paylabs chekout",
+    "paylabs magento2",
+    "paylabs magento2 payment gateway"
+  ]
+}

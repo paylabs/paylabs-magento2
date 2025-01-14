@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <section id="payment">
+            <group id="paylabs" translate="label" type="text" sortOrder="100" showInDefault="1"  showInWebsite="1" showInStore="1">
+                <label><![CDATA[Paylabs Payment Gateway]]></label>
+                <fieldset_css>complex paylabs-admin-config-section</fieldset_css>
+                <comment>We provide a convenient integrated payment system for enterprises to make payment transactions. Our products include Virtual Accounts, Debit / Credit Cards, Electronic Money, Convenience Stores, and Cardless Credit.</comment>
+                <frontend_model>Paylabs\Payment\Block\Adminhtml\Config\Fieldset</frontend_model>
+                <attribute type="displayIn">recommended_solutions</attribute>
+                <include path="Paylabs_Payment::system/settings.xml"/>
+                <include path="Paylabs_Payment::system/checkout_seamless.xml"/>
+            </group>
+        </section>
+    </system>
+</config>

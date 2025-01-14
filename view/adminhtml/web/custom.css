@@ -1,0 +1,50 @@
+/* Existing styles */
+.paylabs-admin-config-section .heading {
+    background: url("images/paylabs-logo.svg") no-repeat 0 50% / 18rem auto;
+    padding-left: 20rem;
+}
+
+.paylabs-admin-config-section .button-container {
+    float: right;
+}
+
+.paylabs-admin-config-section .config-alt {
+    height: 26px;
+    margin: 0.5rem 0 0;
+    width: 230px;
+}
+
+.paylabs-admin-config-section h1.intro-title {
+    color: #333;
+    margin-bottom: 1rem;
+}
+
+.paylabs-admin-config-section p.intro-description {
+    color: #555;
+    line-height: 1.7;
+    margin-bottom: 1.25rem;
+}
+
+.paylabs-admin-config-section h2.feature-heading,
+.paylabs-admin-config-section h2.getting-started-heading {
+    color: #333;
+    margin-top: 1.25rem;
+    margin-bottom: 0.75rem;
+}
+
+.paylabs-admin-config-section ul.feature-list {
+    list-style-type: disc;
+    margin-left: 1.25rem;
+    color: #444;
+}
+
+.paylabs-admin-config-section ul.feature-list li {
+    line-height: 1.6;
+    margin-bottom: 0.5rem;
+}
+
+.paylabs-admin-config-section p.getting-started-description {
+    color: #555;
+    line-height: 1.7;
+    margin-top: 0.5rem;
+}

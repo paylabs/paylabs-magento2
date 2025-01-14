@@ -1,0 +1,91 @@
+<?xml version="1.0"?>
+<include xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_include.xsd">
+    <group id="settings" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+        <frontend_model>Magento\Config\Block\System\Config\Form\Fieldset</frontend_model>
+        <comment><![CDATA[
+        <h1 class="intro-title">Paylabs Payment Gateway for Magento 2</h1>
+        <p class="intro-description">
+            PT Wahana Pembayaran Digital -- known as Paylabs is one of the companies engaged in the Payment Gateway services in Indonesia. We provide a convenient integrated payment system for enterprises to make payment transactions. Our products include Virtual Accounts, Debit / Credit Cards, Electronic Money, Convenience Stores, and Cardless Credit.
+        </p>
+        <h2 class="feature-heading">Getting Started with Paylabs Payment Gateway:</h2>
+        <ul class="feature-list">
+            <li><strong>Register :</strong> To connect your Magento store with Paylabs, You need to register as a merchant. If you haven’t already, please <a href="https://merchant.paylabs.co.id/paylabs-register-register.html" target="_blank" rel="noopener noreferrer">Register Here</a> to create an account.</li>
+            <li><strong>Need Help?:</strong> If you encounter any issues or need further assistance, please contact our support team at cs@paylabs.co.id. We’re here to help ensure a smooth integration experience.</li>
+        </ul>
+        ]]></comment>
+        <label><![CDATA[Configuration]]></label>
+        <attribute type="expanded">1</attribute>
+        <field id="production_mode" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
+            <label>Production Mode</label>
+            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+        </field>
+        <field id="merchant_id" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
+            <label>Merchant ID</label>
+            <validate>required-entry</validate>
+            <frontend_class>required-entry</frontend_class>
+            <comment><![CDATA[You can find this value on Dashboard Paylabs ]]></comment>
+        </field>
+        <field id="merchant_private_key" translate="label" type="textarea" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="0">
+            <label>Merchant Private Key</label>
+            <validate>no-html-tags</validate>
+            <depends>
+                <field id="production_mode">1</field>
+            </depends>
+        </field>
+        <field id="paylabs_public_key" translate="label" type="textarea" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="0">
+            <label>Paylabs Public Key</label>
+            <validate>no-html-tags</validate>
+            <depends>
+                <field id="production_mode">1</field>
+            </depends>
+        </field>
+        <field id="test_merchant_private_key" translate="label" type="textarea" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="0">
+            <label>Merchant Private Key</label>
+            <validate>no-html-tags</validate>
+            <depends>
+                <field id="production_mode">0</field>
+            </depends>
+        </field>
+        <field id="test_paylabs_public_key" translate="label" type="textarea" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="0">
+            <label>Paylabs Public Key</label>
+            <validate>no-html-tags</validate>
+            <depends>
+                <field id="production_mode">0</field>
+            </depends>
+        </field>
+        <group id="notification" translate="label" type="text" sortOrder="90" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label><![CDATA[Webhook Callback Notification URL]]></label>
+            <attribute type="expanded">1</attribute>
+            <comment><![CDATA[The Webhook Notification URL allows Paylabs to send real-time updates to your Magento store regarding the status of transactions processed through the payment extension.]]></comment>
+            <frontend_model>Magento\Config\Block\System\Config\Form\Fieldset</frontend_model>
+            <field id="endpoint" translate="label" type="label" sortOrder="81" showInDefault="1" showInWebsite="1" showInStore="0">
+                <label>URL</label>
+                <frontend_model>Paylabs\Payment\Block\Adminhtml\Config\CallbackUrl</frontend_model>
+            </field>
+        </group>
+        <group id="log" translate="label" type="text" sortOrder="90" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label><![CDATA[Log Option]]></label>
+            <frontend_model>Magento\Config\Block\System\Config\Form\Fieldset</frontend_model>
+            <field id="callback" translate="label" type="select" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="0">
+                <label>Enable Callback Notification Log</label>
+                <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                <tooltip>If enabled, you can view every Paylabs notification received in the log file located at /var/log/paylabs_callback.log.</tooltip>
+            </field>
+            <field id="request" translate="label" type="select" sortOrder="110" showInDefault="1" showInWebsite="1" showInStore="0">
+                <label>Enable Request Log</label>
+                <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                <tooltip>If enabled, you can view every API Request that send to Paylabs in the log file located at /var/log/paylabs_api_request.log.</tooltip>
+            </field>
+            <field id="debug" translate="label" type="select" sortOrder="120" showInDefault="1" showInWebsite="1" showInStore="0">
+                <label>Enable Debug Log</label>
+                <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                <tooltip>If enabled, you can view every log information for this module file located at /var/log/paylabs_debug.log.</tooltip>
+            </field>
+            <field id="exception" translate="label" type="select" sortOrder="130" showInDefault="1" showInWebsite="1" showInStore="0">
+                <label>Enable Error and Exception</label>
+                <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                <tooltip>If enabled, you can view every error exception for this module Request that send to Paylabs in the log file located at /var/log/paylabs_error.log.</tooltip>
+            </field>
+        </group>
+    </group>
+</include>
