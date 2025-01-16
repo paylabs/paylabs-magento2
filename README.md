@@ -10,8 +10,8 @@ This is the **Paylabs Payment Gateway Module for Magento 2**, connect **Paylabs*
 ---
 
 ## 📌 Requirements
-- **Magento 2.4.x**
-- **PHP 8.x**
+- **Magento 2.4.x** (Dev 2.4.7-p3)
+- **PHP 8.x** (Dev  8.1.31)
 - **Paylabs Account** ([Register Now!](https://merchant.paylabs.co.id/paylabs-register-register.html))
 
 ---
