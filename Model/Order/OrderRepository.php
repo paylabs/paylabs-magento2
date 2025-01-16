@@ -12,75 +12,30 @@ use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Message\ManagerInterface as MessageManagerInterface;
 use Magento\Framework\ObjectManagerInterface;
 use Magento\Sales\Api\Data\OrderInterface;
-use Magento\Sales\Model\Order;
-use Magento\Sales\Model\OrderRepository as MagentoOrderRepository;
+use Magento\Sales\Api\OrderRepositoryInterface;
 
 /**
  * Magento Order Repository
  */
 class OrderRepository
 {
-    /**
-     * @var Order
-     */
-    protected Order $order;
-
-    /**
-     * @var ObjectManagerInterface
-     */
     protected ObjectManagerInterface $objectManager;
-
-    /**
-     * @var PaylabsLogger
-     */
     protected PaylabsLogger $logger;
-
-    /**
-     * @var MagentoOrderRepository
-     */
-    protected MagentoOrderRepository $magentoOrderRepository;
-
-    /**
-     * @var Transaction
-     */
+    protected OrderRepositoryInterface $orderRepositoryInterface;
     protected Transaction $transaction;
-
-    /**
-     * @var MessageManagerInterface
-     */
     protected MessageManagerInterface $messageManager;
-
-    /**
-     * @var SearchCriteriaBuilder
-     */
     protected SearchCriteriaBuilder $searchCriteriaBuilder;
-
-    /**
-     * @var ModuleConfig
-     */
     protected ModuleConfig $moduleConfig;
 
-    /**
-     * Order Repository Constructor
-     *
-     * @param Order $order
-     * @param ObjectManagerInterface $objectManager
-     * @param MagentoOrderRepository $magentoOrderRepository
-     * @param PaylabsLogger $logger
-     * @param SearchCriteriaBuilder $searchCriteriaBuilder
-     * @param ModuleConfig $moduleConfig
-     */
     public function __construct(
-        Order $order,
         ObjectManagerInterface $objectManager,
-        MagentoOrderRepository $magentoOrderRepository,
+        OrderRepositoryInterface $orderRepositoryInterface,
         PaylabsLogger $logger,
         SearchCriteriaBuilder $searchCriteriaBuilder,
-        ModuleConfig $moduleConfig,
+        ModuleConfig $moduleConfig
     ) {
-        $this->order = $order;
         $this->objectManager = $objectManager;
-        $this->magentoOrderRepository = $magentoOrderRepository;
+        $this->orderRepositoryInterface = $orderRepositoryInterface;
         $this->logger = $logger;
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
         $this->moduleConfig = $moduleConfig;
@@ -92,18 +47,26 @@ class OrderRepository
      * @param int $orderId
      * @return OrderInterface|null
      */
-    public function getOrderById(int $orderId): ?OrderInterface
+    public function getOrderById(string $orderId): ?OrderInterface
     {
         try {
-            return $this->magentoOrderRepository->get($orderId);
-        } catch (InputException $e) {
-            $this->logger->logErrorException("OrderRepository.class->getOrderById: Invalid input for fetching order with ID: {$orderId}.", $e);
-        } catch (NoSuchEntityException $e) {
-            $this->logger->logErrorException("OrderRepository.class->getOrderById: Order with ID {$orderId} does not exist.", $e);
+            $searchCriteria = $this->searchCriteriaBuilder
+                ->addFilter('increment_id', $orderId) // Use 'increment_id' for string-based order IDs
+                ->create();
+
+            $orderList = $this->orderRepositoryInterface->getList($searchCriteria);
+
+            $items = $orderList->getItems();
+            if (!empty($items)) {
+                return reset($items); // Return the first matching order
+            }
+
+            $this->logger->logDebug("Order with Increment ID {$orderId} not found.");
         } catch (\Exception $e) {
-            $this->logger->logErrorException("OrderRepository.class->getOrderById: Unknown Error.", $e);
+            $this->logger->logErrorException("Error fetching order with Increment ID: {$orderId}", $e);
         }
-        return null;
+
+        return null; // Return null if not found
     }
 
     /**
@@ -115,19 +78,17 @@ class OrderRepository
     public function saveOrder(OrderInterface $order): ?OrderInterface
     {
         try {
-            $savedOrder = $this->magentoOrderRepository->save($order);
-            $this->logger->logDebug(
-                "OrderRepository.class->saveOrder(): Order with ID {$order->getIncrementId()} has been saved successfully. Data: OrderStatus: {$order->getStatus()}, OrderState: {$order->getState()}, PaylabsLinkId: {$order->getExtOrderId()}"
-            );
+            $savedOrder = $this->orderRepositoryInterface->save($order);
+            $this->logger->logDebug("Order with ID {$order->getIncrementId()} has been saved successfully.");
             return $savedOrder;
         } catch (\Exception $e) {
-            $this->logger->logErrorException("OrderRepository.class->saveOrder(): Unable to save the order.", $e);
-            return null;
+            $this->logger->logErrorException("Unable to save the order.", $e);
         }
+        return null;
     }
 
     /**
-     * Set additional payment information to order object
+     * Set additional payment information to order object.
      *
      * @param OrderInterface $order
      * @param string $key
@@ -141,33 +102,31 @@ class OrderRepository
     }
 
     /**
-     * Get order object by Paylabs Link Id
+     * Get order object by Paylabs Link ID.
      *
      * @param string $linkId
      * @return OrderInterface|null
      */
-    public function getOrderByLinkId(string $linkId): null|OrderInterface
+    public function getOrderByLinkId(string $linkId): ?OrderInterface
     {
         $businessId = $this->moduleConfig->getMerchantId();
-        // Build search criteria
         $searchCriteria = $this->searchCriteriaBuilder
             ->addFilter('ext_order_id', $businessId . '-' . $linkId)
             ->create();
 
-        // Retrieve orders
-        $orderList = $this->magentoOrderRepository->getList($searchCriteria);
+        $orderList = $this->orderRepositoryInterface->getList($searchCriteria);
 
-        // Return the first order if it exists
         $items = $orderList->getItems();
         if (!empty($items)) {
-            return reset($items); // Return the first matching order
+            return reset($items);
         }
 
-        return null; // No order found
+        $this->logger->logDebug("No order found with Link ID: {$linkId}");
+        return null;
     }
 
     /**
-     * Function to set State and Status order, also can add comment in the status history
+     * Set state and status of the order.
      *
      * @param OrderInterface $order
      * @param string $statusState
@@ -182,21 +141,24 @@ class OrderRepository
     }
 
     /**
-     * Check is order contain virtual product
+     * Check if order contains virtual products.
      *
-     * @param $incrementId
+     * @param int $orderId
      * @return bool
      */
-    public function isContainVirtualProduct($incrementId): bool
+    public function isContainVirtualProduct(int $orderId): bool
     {
-        $isVirtual = false;
-        $items = $this->getOrderById($incrementId)->getAllItems();
-        foreach ($items as $item) {
-            //look for virtual products
-            if ($item->getProduct()->getIsVirtual()) {
-                $isVirtual = true;
+        $order = $this->getOrderById($orderId);
+        if (!$order) {
+            $this->logger->logDebug("Order with ID {$orderId} not found.");
+            return false;
+        }
+
+        foreach ($order->getAllItems() as $item) {
+            if ($item->getProduct() && $item->getProduct()->getIsVirtual()) {
+                return true;
             }
         }
-        return  $isVirtual;
+        return false;
     }
 }

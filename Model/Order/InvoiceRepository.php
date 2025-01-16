@@ -145,7 +145,7 @@ class InvoiceRepository
             $this->paylabsOrderRepository->saveOrder($order);
         } catch (LocalizedException $e) {
             // Handle Magento-specific exceptions
-            $this->logger->error("Invoice creation error: " . $e->getMessage());
+            $this->logger->logDebug("Invoice creation error: " . $e->getMessage());
             $this->messageManager->addErrorMessage($e->getMessage());
         } catch (\Exception $e) {
             // Handle generic exceptions

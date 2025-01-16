@@ -91,7 +91,7 @@
     <type name="Paylabs\Payment\Controller\Payment\Callback">
         <arguments>
             <argument name="resultJsonFactory" xsi:type="object">Magento\Framework\Controller\Result\JsonFactory</argument>
-            <argument name="logger" xsi:type="object">Psr\Log\LoggerInterface</argument>
+            <argument name="logger" xsi:type="object">Paylabs\Payment\Logger\PaylabsLogger</argument>
         </arguments>
     </type>
 

@@ -8,7 +8,6 @@ use Paylabs\Payment\Model\Config\Payment\ModuleConfig;
 use Paylabs\Payment\Model\Order\InvoiceRepository;
 use Paylabs\Payment\Model\Order\OrderRepository;
 use Paylabs\Payment\Model\Payment\RequestFactory;
-// use Paylabs\Payment\Service\PaylabsService;
 use Paylabs\Payment\Model\PaylabsService;
 use Magento\Checkout\Model\Session;
 use Magento\Framework\App\Action\Context;
@@ -20,6 +19,8 @@ use Magento\Framework\Controller\ResultFactory;
 use Magento\Framework\Serialize\Serializer\Json;
 use Magento\Framework\View\Result\PageFactory;
 use Magento\Framework\App\Request\Http;
+use Magento\Framework\App\ResponseInterface;
+use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * AbstractAction class for handling payment-related actions that implement ActionApp Magento in the Paylabs Payment module.
@@ -31,6 +32,7 @@ use Magento\Framework\App\Request\Http;
  */
 abstract class AbstractAction implements ActionApp
 {
+    public StoreManagerInterface $storeManager;
     /**
      * @var PaylabsLogger Logger instance for logging actions, requests, and errors.
      */
@@ -111,6 +113,8 @@ abstract class AbstractAction implements ActionApp
      */
     protected Http $request;
 
+    protected ResponseInterface $_response;
+
     /**
      * Constructor for AbstractAction class.
      *
@@ -141,8 +145,11 @@ abstract class AbstractAction implements ActionApp
         RequestFactory $requestFactory,
         PageFactory $pageFactory,
         Http $request,
-        Json $jsonSerializer
+        Json $jsonSerializer,
+        ResponseInterface $response,
+        StoreManagerInterface $storeManager
     ) {
+        $this->_response = $response;
         $this->_checkoutSession = $checkoutSession;
         $this->_context = $context;
         $this->_resultJsonFactory = $resultJsonFactory;
@@ -159,6 +166,7 @@ abstract class AbstractAction implements ActionApp
         $this->redirectFactory = $context->getResultRedirectFactory();
         $this->request = $request;
         $this->jsonSerializer = $jsonSerializer;
+        $this->storeManager = $storeManager;
     }
 
     /**
@@ -169,5 +177,10 @@ abstract class AbstractAction implements ActionApp
     public function getRequest(): Http
     {
         return $this->request;
+    }
+
+    public function setResponseHeader(string $headerName, string $headerValue, bool $replace = true): void
+    {
+        $this->_response->setHeader($headerName, $headerValue, $replace);
     }
 }

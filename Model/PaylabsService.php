@@ -56,9 +56,9 @@ class PaylabsService
         $this->publicKey = $moduleConfig->getPaylabsPublicKey();
         $this->server = $moduleConfig->isProd();
 
-        $this->logger->info("[PAYLABS] MID", ['mid' => $this->mid]);
-        $this->logger->info("[PAYLABS] Private Key", ['private_key' => $this->privateKey]);
-        $this->logger->info("[PAYLABS] Public Key", ['public_key' => $this->publicKey]);
+        // $this->logger->info("[PAYLABS] MID", ['mid' => $this->mid]);
+        // $this->logger->info("[PAYLABS] Private Key", ['private_key' => $this->privateKey]);
+        // $this->logger->info("[PAYLABS] Public Key", ['public_key' => $this->publicKey]);
     }
 
     public function setNotifyUrl($url)
@@ -115,6 +115,7 @@ class PaylabsService
 
     public function generateSign()
     {
+
         $shaJson = strtolower(hash('sha256', json_encode($this->body, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)));
         $signatureBefore = "POST:" . $this->getEndpoint() . $this->path . ":" . $shaJson . ":" . $this->date;
         $binarySignature = "";
@@ -134,16 +135,58 @@ class PaylabsService
 
     public function post()
     {
-        $this->logger->info("[PAYLABS] Full URL: " . $this->getUrl() . $this->path);
-        $this->logger->info("[PAYLABS] Headers: " . json_encode($this->headers));
-        $this->logger->info("[PAYLABS] Body: " . json_encode($this->body));
+        // $this->logger->info("[PAYLABS] Full URL: " . $this->getUrl() . $this->path);
+        // $this->logger->info("[PAYLABS] Headers: " . json_encode($this->headers));
+        // $this->logger->info("[PAYLABS] Body: " . json_encode($this->body));
 
         $this->curl->setHeaders($this->headers);
         $this->curl->post($this->getUrl() . $this->path, json_encode($this->body, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
 
         $response = $this->curl->getBody();
-        $this->logger->info("[PAYLABS] Response: " . $response);
+        // $this->logger->info("[PAYLABS] Response: " . $response);
 
         return json_decode($response, true);
+    }
+
+    public function verifySign($path, $dataToSign, $sign, $dateTime)
+    {
+        $binary_signature = base64_decode($sign);
+        $shaJson  = strtolower(hash('sha256', $dataToSign));
+        $signatureAfter = "POST:" . $path . ":" . $shaJson . ":" . $dateTime;
+
+        $validateKey = openssl_pkey_get_public($this->publicKey);
+        if ($validateKey === false) {
+            die("Error loading public key");
+        }
+
+        $algo =  OPENSSL_ALGO_SHA256;
+        $verificationResult = openssl_verify($signatureAfter, $binary_signature, $this->publicKey, $algo);
+
+        if ($verificationResult === 1) {
+            return true;
+        }
+        return false;
+    }
+
+    public function responseCallback($path)
+    {
+        $this->path = $path;
+        $this->body = array(
+            "merchantId" => $this->mid,
+            "requestId" => $this->idRequest,
+            "errCode" => "0"
+        );
+
+        $signature = $this->generateSign();
+
+        $headers = [
+            "Content-Type" => "application/json;charset=utf-8",
+            "X-TIMESTAMP" => $this->date,
+            "X-SIGNATURE" => $signature,
+            "X-PARTNER-ID" => $this->mid,
+            "X-REQUEST-ID" => $this->idRequest
+        ];
+
+        return ['headers' => $headers, 'body' => $this->body];
     }
 }
