@@ -1,7 +1,5 @@
 # Paylabs Magento 2 Payment Gateway
 
-[![License](https://github.com/paylabs/paylabs-magento2/blob/main/LICENSE)](LICENSE)
-
 This is the **Paylabs Payment Gateway Module for Magento 2**, connect **Paylabs** services with your store easily.
 
 ## Features
@@ -21,7 +19,7 @@ This is the **Paylabs Payment Gateway Module for Magento 2**, connect **Paylabs*
 ## 🔧 Installation
 
 ### A. Manual Installation
-1. Download the module from [GitHub Releases](https://github.com/paylabs/paylabs-magento2/releases/tag/v1.0).
+1. Download the module from [GitHub Releases](https://github.com/paylabs/Paylabs-Magento2/releases/tag/v1.0).
 2. Extract and copy the files into:
    ```
    app/code/Paylabs/Payment/
